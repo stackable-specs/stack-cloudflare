@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo",
+    "lib": ["ESNext"],
+    "types": ["./worker/worker-configuration.d.ts", "@cloudflare/vitest-plugin/types"]
+  },
+  "include": ["worker", "tests/worker"]
+}

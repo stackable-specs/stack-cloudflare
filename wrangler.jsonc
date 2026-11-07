@@ -1,0 +1,76 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "stack-cloudflare",
+  "main": "./worker/index.ts",
+  // Pinned. Update on purpose, in a reviewed change (spec: platform/cloudflare.md rule 17).
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"],
+  },
+  "observability": { "enabled": true },
+
+  // Local development uses these bindings. Miniflare simulates them in workerd.
+  // The database_id is a placeholder. Local mode does not need a real ID.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "stack-cloudflare-dev",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "r2_buckets": [{ "binding": "ARTIFACTS", "bucket_name": "stack-cloudflare-artifacts" }],
+  "queues": {
+    "producers": [{ "binding": "EVALUATION_QUEUE", "queue": "stack-cloudflare-evaluations" }],
+    "consumers": [
+      {
+        "queue": "stack-cloudflare-evaluations",
+        "max_retries": 3,
+        "dead_letter_queue": "stack-cloudflare-evaluations-dlq",
+      },
+    ],
+  },
+  "workflows": [
+    {
+      "binding": "PUBLICATION_WORKFLOW",
+      "name": "stack-cloudflare-publication",
+      "class_name": "PublicationWorkflow",
+    },
+  ],
+
+  "env": {
+    // Staging is a deployed environment. Replace the placeholder IDs before the first deploy.
+    // Bindings are not inherited by environments, so each environment declares all bindings.
+    "staging": {
+      "name": "stack-cloudflare-staging",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "stack-cloudflare-staging",
+          "database_id": "REPLACE_WITH_STAGING_D1_DATABASE_UUID",
+          "migrations_dir": "migrations",
+        },
+      ],
+      "r2_buckets": [{ "binding": "ARTIFACTS", "bucket_name": "stack-cloudflare-artifacts-staging" }],
+      "queues": {
+        "producers": [{ "binding": "EVALUATION_QUEUE", "queue": "stack-cloudflare-evaluations-staging" }],
+        "consumers": [
+          {
+            "queue": "stack-cloudflare-evaluations-staging",
+            "max_retries": 3,
+            "dead_letter_queue": "stack-cloudflare-evaluations-staging-dlq",
+          },
+        ],
+      },
+      "workflows": [
+        {
+          "binding": "PUBLICATION_WORKFLOW",
+          "name": "stack-cloudflare-publication-staging",
+          "class_name": "PublicationWorkflow",
+        },
+      ],
+    },
+  },
+}

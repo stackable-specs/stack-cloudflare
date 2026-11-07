@@ -1,0 +1,5 @@
+# Supply-chain policy (spec: security/dependency-management.md).
+# Only allow install scripts for the packages that need native binaries.
+allowBuilds:
+  esbuild: true
+  workerd: true

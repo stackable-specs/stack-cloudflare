@@ -1,0 +1,53 @@
+{
+  "name": "stack-cloudflare",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloudflare Workers base template (React + Vite + D1 + R2 + Queues + Workflows) that follows the stackable-specs methodology",
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "pnpm run build && vite preview",
+    "cf-typegen": "wrangler types worker/worker-configuration.d.ts --include-env=false",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:stage": "wrangler d1 migrations apply DB --remote --env staging",
+    "seed:local": "wrangler r2 object put stack-cloudflare-artifacts/examples/index.html --file=./fixtures/index.html --local",
+    "typecheck": "tsc -b",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm run test:unit && pnpm run test:worker",
+    "test:unit": "vitest run --project unit",
+    "test:worker": "vitest run --project worker",
+    "test:e2e": "playwright test",
+    "verify": "node scripts/verify.mjs",
+    "deploy:stage": "pnpm run build && wrangler deploy --env staging"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "1.66.0",
+    "@cloudflare/vitest-plugin": "1.4.11",
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "eslint": "10.13.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.13.0",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vite": "8.3.5",
+    "vitest": "4.1.12",
+    "wrangler": "4.156.0"
+  }
+}
