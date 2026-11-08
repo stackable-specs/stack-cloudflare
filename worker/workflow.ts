@@ -2,44 +2,50 @@ import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from "cloud
 import { NonRetryableError } from "cloudflare:workflows";
 import { publishedKey, sha256Hex, submissionKey } from "./domain/submission";
 import type { Env, PublicationParams } from "./env";
-import { updateStatus } from "./repository";
+import { transitionStatus } from "./repository";
 
-/** Publishes an approved artifact. It refuses an artifact that differs from the approved one. */
+/** Publishes an approved artifact. It refuses an artifact that differs from the approved one (ADR-006). */
 export class PublicationWorkflow extends WorkflowEntrypoint<Env, PublicationParams> {
   override async run(event: WorkflowEvent<PublicationParams>, step: WorkflowStep): Promise<{ key: string }> {
     const { id, approvedSha256 } = event.payload;
 
-    await step.do("verify artifact hash", async () => {
-      const object = await this.env.ARTIFACTS.get(submissionKey(id));
-      if (!object) {
-        await updateStatus(this.env.DB, id, "failed", { reasons: ["artifact is missing from storage"] });
-        throw new NonRetryableError("artifact is missing");
-      }
-      const actual = await sha256Hex(await object.arrayBuffer());
-      if (actual !== approvedSha256) {
-        await updateStatus(this.env.DB, id, "failed", { reasons: ["artifact hash does not match the approved hash"] });
-        throw new NonRetryableError("artifact hash mismatch");
-      }
-      return { sha256: actual };
-    });
+    const fail = async (reason: string): Promise<never> => {
+      await transitionStatus(this.env.DB, id, "approved", "failed", { reasons: [reason] });
+      throw new NonRetryableError(reason);
+    };
 
-    const key = await step.do("copy to published", { retries: { limit: 3, delay: "1 second" } }, async () => {
-      const source = await this.env.ARTIFACTS.get(submissionKey(id));
-      if (!source) {
-        throw new NonRetryableError("artifact is missing");
-      }
-      const target = publishedKey(id);
-      await this.env.ARTIFACTS.put(target, await source.arrayBuffer(), {
-        httpMetadata: { contentType: "text/html; charset=utf-8" },
-        customMetadata: { sha256: approvedSha256 },
+    try {
+      // Read, verify, and copy ONE buffer in ONE step. No second read can publish other bytes.
+      const key = await step.do("verify and copy", { retries: { limit: 3, delay: "1 second" } }, async () => {
+        const object = await this.env.ARTIFACTS.get(submissionKey(id));
+        if (!object) {
+          return fail("artifact is missing from storage");
+        }
+        const bytes = await object.arrayBuffer();
+        if ((await sha256Hex(bytes)) !== approvedSha256) {
+          return fail("artifact hash does not match the approved hash");
+        }
+        const target = publishedKey(id);
+        await this.env.ARTIFACTS.put(target, bytes, {
+          httpMetadata: { contentType: "text/html; charset=utf-8" },
+          customMetadata: { sha256: approvedSha256 },
+        });
+        return target;
       });
-      return target;
-    });
 
-    await step.do("mark published", async () => {
-      await updateStatus(this.env.DB, id, "published", { publishedAt: new Date().toISOString() });
-    });
+      await step.do("mark published", async () => {
+        await transitionStatus(this.env.DB, id, "approved", "published", { publishedAt: new Date().toISOString() });
+      });
 
-    return { key };
+      return { key };
+    } catch (error) {
+      // A step used all of its retries. Do not leave the submission in `approved` with no way to recover.
+      if (!(error instanceof NonRetryableError)) {
+        await transitionStatus(this.env.DB, id, "approved", "failed", {
+          reasons: ["publication failed after retries"],
+        });
+      }
+      throw error;
+    }
   }
 }

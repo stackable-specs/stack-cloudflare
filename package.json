@@ -27,7 +27,9 @@
     "verify": "node scripts/verify.mjs",
     "verify:local": "node scripts/verify-local.mjs",
     "doctor": "node scripts/doctor.mjs",
-    "deploy:stage": "pnpm run build && wrangler deploy --env staging"
+    "deploy:stage": "pnpm run build:stage && wrangler deploy",
+    "build:stage": "tsc -b && CLOUDFLARE_ENV=staging vite build",
+    "deploy:stage:dry": "pnpm run build:stage && wrangler deploy --dry-run --outdir node_modules/.tmp/deploy-dry"
   },
   "dependencies": {
     "react": "19.3.1",

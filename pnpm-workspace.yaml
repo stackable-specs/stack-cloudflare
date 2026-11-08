@@ -1,4 +1,6 @@
 # Supply-chain policy (spec: security/dependency-management.md).
+# Wait 7 days (10080 minutes) before a new release can install (ADR-005).
+minimumReleaseAge: 10080
 # Only allow install scripts for the packages that need native binaries.
 allowBuilds:
   esbuild: true

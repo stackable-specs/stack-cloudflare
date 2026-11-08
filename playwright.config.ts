@@ -16,7 +16,8 @@ export default defineConfig({
   webServer: {
     command: `pnpm run db:migrate:local && pnpm exec vite --port ${port} --strictPort`,
     url: `http://localhost:${port}/api/health`,
-    reuseExistingServer: !process.env.CI,
+    // Never reuse an unknown server on the port (spec: quality/workers-testing.md rule 7).
+    reuseExistingServer: false,
     timeout: 60_000,
   },
 });

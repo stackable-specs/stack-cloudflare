@@ -2,10 +2,10 @@
 # Each target wraps a pnpm script, so CI and developers use the same commands.
 
 .DEFAULT_GOAL := help
-.PHONY: help build run check health clean e2e verify migrate seed deploy-stage setup doctor verify-local
+.PHONY: help build run check health clean e2e verify migrate seed deploy-stage deploy-stage-dry migrate-stage setup doctor verify-local
 
 help: ## Show available commands
-	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z_-]+:.*## / {printf "  make %-14s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9_-]+:.*## / {printf "  make %-14s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 build: ## Install dependencies, generate types, apply local D1 migrations, and build
 	pnpm install --frozen-lockfile
@@ -17,6 +17,7 @@ build: ## Install dependencies, generate types, apply local D1 migrations, and b
 run: ## Start Vite and the local Worker (D1, R2, Queues, Workflows in workerd)
 	@test -d node_modules || { echo "Run 'make build' first."; exit 1; }
 	pnpm run db:migrate:local
+	@echo "Project is running. Open the URL that Vite prints."
 	pnpm run dev
 
 check: ## Run format, lint, type, unit, and Worker checks (PASS or FAIL)
@@ -25,8 +26,8 @@ check: ## Run format, lint, type, unit, and Worker checks (PASS or FAIL)
 health: ## Print a synthesized project health assessment
 	@node scripts/health.mjs
 
-clean: ## Remove build output, test output, and local Cloudflare state
-	rm -rf dist coverage playwright-report test-results node_modules/.tmp node_modules/.vite
+clean: ## Remove build and test output. DEEP=1 also removes .wrangler and node_modules
+	rm -rf dist coverage playwright-report test-results blob-report node_modules/.tmp node_modules/.vite
 	@if [ "$(DEEP)" = "1" ]; then rm -rf .wrangler node_modules; echo "Deep clean: removed .wrangler and node_modules."; fi
 	@echo "Project is clean."
 
@@ -58,5 +59,11 @@ doctor: ## Check local prerequisites: Node.js, pnpm, dependencies, Chromium, .de
 verify-local: ## Start the dev server on a free port, prove D1/R2/Queues/Workflows/Local Explorer, stop (PASS or FAIL)
 	@node scripts/verify-local.mjs
 
-deploy-stage: ## Build and deploy to the staging environment
+deploy-stage: ## Build with CLOUDFLARE_ENV=staging and deploy to staging (ADR-008). Run from CI only.
 	pnpm run deploy:stage
+
+deploy-stage-dry: ## Build for staging and run a deploy dry run. Shows the bindings. No network deploy.
+	pnpm run deploy:stage:dry
+
+migrate-stage: ## Apply D1 migrations to the staging database (remote)
+	pnpm run db:migrate:stage

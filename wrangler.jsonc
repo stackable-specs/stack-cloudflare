@@ -1,7 +1,11 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "stack-cloudflare",
+  // Top level = local development only (ADR-010). The name says so, and a bare `wrangler deploy`
+  // gets no public URL because workers_dev and preview_urls are off here.
+  "name": "stack-cloudflare-local-do-not-deploy",
   "main": "./worker/index.ts",
+  "workers_dev": false,
+  "preview_urls": false,
   // Pinned. Update on purpose, in a reviewed change (spec: platform/cloudflare.md rule 17).
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -11,7 +15,8 @@
   },
   "observability": { "enabled": true },
 
-  // Local development uses these bindings. Miniflare simulates them in workerd.
+  // Local development uses these top-level bindings. They are NOT a production environment.
+  // Production is not defined yet (ADR-008). Do not run a bare `wrangler deploy`. Miniflare simulates them in workerd.
   // The database_id is a placeholder. Local mode does not need a real ID.
   "d1_databases": [
     {
@@ -30,6 +35,8 @@
         "max_retries": 3,
         "dead_letter_queue": "stack-cloudflare-evaluations-dlq",
       },
+      // ADR-010: the dead-letter consumer marks the submission failed.
+      { "queue": "stack-cloudflare-evaluations-dlq", "max_retries": 3 },
     ],
   },
   "workflows": [
@@ -45,6 +52,7 @@
     // Bindings are not inherited by environments, so each environment declares all bindings.
     "staging": {
       "name": "stack-cloudflare-staging",
+      "workers_dev": true,
       "d1_databases": [
         {
           "binding": "DB",
@@ -62,6 +70,7 @@
             "max_retries": 3,
             "dead_letter_queue": "stack-cloudflare-evaluations-staging-dlq",
           },
+          { "queue": "stack-cloudflare-evaluations-staging-dlq", "max_retries": 3 },
         ],
       },
       "workflows": [

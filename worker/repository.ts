@@ -60,17 +60,23 @@ export async function listSubmissions(db: D1Database, limit = 50): Promise<Submi
   return results.map(toSubmission);
 }
 
-export async function updateStatus(
+/**
+ * Changes the status only when the current status is `from`.
+ * Returns true when this call made the change. Concurrent callers cannot both win.
+ */
+export async function transitionStatus(
   db: D1Database,
   id: string,
-  status: SubmissionStatus,
+  from: SubmissionStatus,
+  to: SubmissionStatus,
   opts: { reasons?: string[]; publishedAt?: string } = {},
-): Promise<void> {
+): Promise<boolean> {
   const now = new Date().toISOString();
-  await db
+  const result = await db
     .prepare(
-      "UPDATE submissions SET status = ?, reasons = COALESCE(?, reasons), published_at = COALESCE(?, published_at), updated_at = ? WHERE id = ?",
+      "UPDATE submissions SET status = ?, reasons = COALESCE(?, reasons), published_at = COALESCE(?, published_at), updated_at = ? WHERE id = ? AND status = ?",
     )
-    .bind(status, opts.reasons ? JSON.stringify(opts.reasons) : null, opts.publishedAt ?? null, now, id)
+    .bind(to, opts.reasons ? JSON.stringify(opts.reasons) : null, opts.publishedAt ?? null, now, id, from)
     .run();
+  return result.meta.changes === 1;
 }

@@ -14,7 +14,7 @@ The full application runs on a laptop. Wrangler, Miniflare, and `workerd` simula
 | `make health` | Graded project assessment with risks and recommendations.                                   |
 | `make clean`  | Removes output. `make clean DEEP=1` also removes local Cloudflare state and `node_modules`. |
 
-Extensions: `make setup`, `make doctor`, `make verify-local`, `make e2e`, `make verify`, `make migrate`, `make seed`, `make deploy-stage`. Run `make help` for the list.
+Extensions: `make setup`, `make doctor`, `make verify-local`, `make e2e`, `make verify`, `make migrate`, `make seed`, `make deploy-stage`, `make deploy-stage-dry`, `make migrate-stage`. Run `make help` for the list.
 
 ## Prerequisites
 
@@ -54,11 +54,13 @@ The template includes a small end-to-end flow that uses each primitive:
 POST /api/submissions ─► R2 (submissions/<id>/index.html) + D1 (status=submitted)
         │
         └─► Queue: stack-cloudflare-evaluations
-                 │  evaluateArtifact()  ─► D1 (approved | rejected)
+                 │  read once, hash == recorded hash?  else ─► D1 failed
+                 │  evaluateArtifact(same bytes)       ─► D1 approved | rejected
+                 │  (after all retries ─► stack-cloudflare-evaluations-dlq ─► D1 failed)
                  └─► Workflow: PublicationWorkflow (instance id = submission id)
-                          1. verify artifact hash  (must equal the approved hash)
-                          2. copy to published/<id>/index.html
-                          3. mark published in D1
+                          1. verify and copy: read once, hash == approved hash, put the SAME bytes
+                             to published/<id>/index.html  (mismatch or retries used up ─► D1 failed)
+                          2. mark published in D1
 ```
 
 | Route                               | Purpose                                   |
@@ -124,6 +126,8 @@ Replace the example domain in `worker/domain/` with your own rules. BDR-001 defi
 | Local       | `make run`                                          | Default. All bindings in Miniflare.                       |
 | Hybrid      | `"remote": true` on one binding, pointed at staging | Workers AI, Vectorize, or a real-service check            |
 | Staging     | `make deploy-stage` from CI                         | WAF, rate limits, auth, Queue concurrency, real Workflows |
+
+Production is not defined yet ([ADR-008](docs/adr/008-environment-selection-at-build-time.md)). Do not run a bare `wrangler deploy`: it uses the local development bindings. The top-level Worker is named `stack-cloudflare-local-do-not-deploy` and has no public URL ([ADR-010](docs/adr/010-dead-letter-consumer-and-local-only-top-level-config.md)). Staging deploys build with `CLOUDFLARE_ENV=staging`; run `make deploy-stage-dry` to see the bindings before a deploy, and `make migrate-stage` to apply staging migrations.
 
 Before the first staging deploy, create the staging resources and replace the `REPLACE_WITH_*` IDs in `wrangler.jsonc`. Never point a development binding at production.
 

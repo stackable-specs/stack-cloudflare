@@ -20,6 +20,11 @@ const all = args.includes("--all");
 const verbose = args.includes("--verbose");
 const only = args.includes("--category") ? args[args.indexOf("--category") + 1] : undefined;
 
+if (args.includes("--category") && !categories.some(([name]) => name === only)) {
+  console.error(`Unknown category: ${only ?? "(missing)"}. Known: ${categories.map(([n]) => n).join(", ")}`);
+  process.exit(2);
+}
+
 const failures = [];
 for (const [name, [cmd, ...rest]] of categories) {
   if (only && only !== name) continue;
@@ -37,5 +42,7 @@ if (failures.length === 0) {
   console.log("PASS");
   process.exit(0);
 }
-console.log(`FAIL\n\n${failures.map((f) => `1 failing category: ${f}`).join("\n")}`);
+console.log(
+  `FAIL\n\n${failures.length} failing ${failures.length === 1 ? "category" : "categories"}: ${failures.join(", ")}`,
+);
 process.exit(1);

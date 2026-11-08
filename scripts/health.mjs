@@ -48,8 +48,14 @@ else {
 const placeholders = (wrangler.match(/REPLACE_WITH_[A-Z0-9_]+/g) ?? []).length;
 if (placeholders > 0) {
   score -= 5;
-  risks.push(`${placeholders} staging resource IDs are placeholders.`);
+  risks.push(
+    `${placeholders} staging resource ${placeholders === 1 ? "ID is a placeholder" : "IDs are placeholders"}.`,
+  );
   recs.push("Create staging resources and replace the REPLACE_WITH_* IDs in wrangler.jsonc.");
+}
+
+if (wrangler.includes("00000000-0000-0000-0000-000000000000")) {
+  strengths.push("The local D1 database_id is the zero UUID, so it cannot point at a real database.");
 }
 
 if (existsSync(".dev.vars") && spawnSync("git", ["ls-files", "--error-unmatch", ".dev.vars"]).status === 0) {
