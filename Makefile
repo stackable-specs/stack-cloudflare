@@ -2,7 +2,7 @@
 # Each target wraps a pnpm script, so CI and developers use the same commands.
 
 .DEFAULT_GOAL := help
-.PHONY: help build run check health clean e2e verify migrate seed deploy-stage
+.PHONY: help build run check health clean e2e verify migrate seed deploy-stage setup doctor verify-local
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z_-]+:.*## / {printf "  make %-14s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -43,6 +43,20 @@ migrate: ## Apply D1 migrations to the local database
 
 seed: ## Upload the fixture artifact into local R2
 	pnpm run seed:local
+
+setup: ## First-time setup: install, types, local migrations, Chromium, .dev.vars (never overwritten), doctor
+	pnpm install --frozen-lockfile
+	pnpm run cf-typegen
+	pnpm run db:migrate:local
+	pnpm exec playwright install chromium
+	@test -f .dev.vars || { cp .dev.vars.example .dev.vars; echo "Created .dev.vars from .dev.vars.example."; }
+	@node scripts/doctor.mjs
+
+doctor: ## Check local prerequisites: Node.js, pnpm, dependencies, Chromium, .dev.vars, ports (PASS or FAIL)
+	@node scripts/doctor.mjs
+
+verify-local: ## Start the dev server on a free port, prove D1/R2/Queues/Workflows/Local Explorer, stop (PASS or FAIL)
+	@node scripts/verify-local.mjs
 
 deploy-stage: ## Build and deploy to the staging environment
 	pnpm run deploy:stage

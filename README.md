@@ -14,7 +14,7 @@ The full application runs on a laptop. Wrangler, Miniflare, and `workerd` simula
 | `make health` | Graded project assessment with risks and recommendations.                                   |
 | `make clean`  | Removes output. `make clean DEEP=1` also removes local Cloudflare state and `node_modules`. |
 
-Extensions: `make e2e`, `make verify`, `make migrate`, `make seed`, `make deploy-stage`. Run `make help` for the list.
+Extensions: `make setup`, `make doctor`, `make verify-local`, `make e2e`, `make verify`, `make migrate`, `make seed`, `make deploy-stage`. Run `make help` for the list.
 
 ## Prerequisites
 
@@ -24,13 +24,23 @@ Extensions: `make e2e`, `make verify`, `make migrate`, `make seed`, `make deploy
 ## Getting started
 
 ```sh
-make build
+make setup        # first time: dependencies, types, local migrations, Chromium, .dev.vars, then doctor
+make verify-local # start the dev server, prove each local primitive, stop the server
 make run          # open the URL that Vite prints (usually http://localhost:5173)
 make check
 make e2e
 ```
 
-Copy `.dev.vars.example` to `.dev.vars` for local secrets.
+`make setup` copies `.dev.vars.example` to `.dev.vars` only when `.dev.vars` does not exist. It never overwrites your local secrets.
+
+### Local environment checks
+
+| Command             | Result                                                                                                                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `make doctor`       | Checks Node.js 22+, pnpm 11, `node_modules`, Worker types, Chromium, `.dev.vars`, local D1 state, ports. Prints `PASS` or `FAIL` with a fix for each failure.                                           |
+| `make verify-local` | Starts Vite on a free loopback port, then proves the Worker routes, D1, R2, the Queue consumer, the Workflow, and the Local Explorer through the public API. Stops the server. Prints `PASS` or `FAIL`. |
+
+`make verify-local` selects its own port. It starts at `VERIFY_PORT` (default 5199) and tests up to 20 more ports. It binds and sends requests only to `127.0.0.1:<port>` with `--strictPort`, so it never talks to another process on a busy port (for example, a port-forward on 5173). Set `VERIFY_TIMEOUT_MS` (default 60000) when the local Queue or Workflow is slow. Each run adds one `verify-local-<timestamp>` submission to local state; `make clean DEEP=1` removes it. Neither command runs a remote Cloudflare operation.
 
 ### Local Explorer
 

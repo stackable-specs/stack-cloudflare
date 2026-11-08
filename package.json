@@ -25,6 +25,8 @@
     "test:worker": "vitest run --project worker",
     "test:e2e": "playwright test",
     "verify": "node scripts/verify.mjs",
+    "verify:local": "node scripts/verify-local.mjs",
+    "doctor": "node scripts/doctor.mjs",
     "deploy:stage": "pnpm run build && wrangler deploy --env staging"
   },
   "dependencies": {

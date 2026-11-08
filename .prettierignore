@@ -6,3 +6,6 @@ test-results
 pnpm-lock.yaml
 worker/worker-configuration.d.ts
 docs/specs
+
+# AI-SDLC run artifacts
+.sdlc/
