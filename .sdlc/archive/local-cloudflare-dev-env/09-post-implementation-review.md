@@ -98,8 +98,8 @@ Default calibration: not necessary. Divergence is 0/1.
 
 | ID | Description | Priority | Category |
 | -- | ----------- | -------- | -------- |
-| FB-01 | Tune Jev `sc_authz` to accept "no auth surface" for changes with no authn/authz | High | Framework |
-| FB-02 | Align `7-release.json` rubric artifact name with `07-release-verification.md` | High | Framework |
+| FB-01 | Tune Jev `sc_authz` to accept "no auth surface" for changes with no authn/authz (done 2026-11-07) | High | Framework |
+| FB-02 | Align `7-release.json` rubric artifact name with `07-release-verification.md` (done 2026-11-07) | High | Framework |
 | FB-03 | Register the SDLC skills (`sdlc:7-release` and others) in the Skill tool, or add the `SKILL.md` path fallback to the manager | Medium | Framework |
 | FB-04 | Upgrade `minimatch` 10.2.6 to 11.0.1+ (GHSA-g3hv-75wg-m249, Medium, pre-existing, dev-only transitive of eslint) | Medium | Security / dependency |
 | FB-05 | Add `@vitest/coverage-v8` (pinned to vitest) in a separate change, then run ub-quality again | Medium | Quality |
