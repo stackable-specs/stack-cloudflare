@@ -62,6 +62,17 @@ Local simulation is not a guarantee of identical production behavior.
 14. Do not treat Miniflare or a local Worker as a security sandbox. Run untrusted code (for example, user-submitted JavaScript) only in an isolated VM or a dedicated sandbox.
 15. Make each Queue consumer idempotent. Local and production Queues can deliver a message more than one time.
 
+## Setup and verification commands
+
+| Command             | Result |
+| ------------------- | ------ |
+| `make setup`        | First-time setup: dependencies, Worker types, local D1 migrations, Chromium, and `.dev.vars` (copied from `.dev.vars.example` only when it does not exist). Then runs `make doctor`. |
+| `make doctor`       | Checks the prerequisites. Prints `PASS` or `FAIL` with a fix for each failure. |
+| `make verify-local` | Starts the dev server on a free loopback port, proves each local primitive through the public API, and stops the server. Prints `PASS` or `FAIL`. |
+
+16. `make verify-local` must bind and send requests only to `127.0.0.1` with `--strictPort`. It must never send requests to a port that another process holds.
+17. `make setup`, `make doctor`, and `make verify-local` must not run a remote Cloudflare operation.
+
 ## Behaviors that need a deployed environment
 
 - Global latency, traffic contention, and production failure modes of D1.

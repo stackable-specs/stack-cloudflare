@@ -12,6 +12,9 @@ Cloudflare Workers base template: React + Vite frontend, a Worker API, D1, R2, Q
 - `make health` — project assessment
 - `make clean` — reset; `DEEP=1` also removes `.wrangler/` and `node_modules/`
 - `make e2e` — Playwright (spec: quality/playwright.md)
+- `make setup` — first-time setup; creates `.dev.vars` only when it is missing, then runs `doctor`
+- `make doctor` — PASS or FAIL prerequisite check (Node.js, pnpm, dependencies, Chromium, `.dev.vars`, ports)
+- `make verify-local` — start the dev server on a free loopback port (from `VERIFY_PORT`, default 5199), prove D1, R2, Queues, Workflows, and the Local Explorer, stop the server; PASS or FAIL
 - `pnpm run cf-typegen` — regenerate `worker/worker-configuration.d.ts` after a `wrangler.jsonc` change
 
 ## Rules for agents

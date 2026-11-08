@@ -1,0 +1,85 @@
+{
+  "slug": "local-cloudflare-dev-env",
+  "rubric": "5-test",
+  "overall": "review",
+  "items": [
+    {
+      "id": "ts_real_output",
+      "label": "results come from real runs",
+      "result": "pass",
+      "value": 0.94,
+      "near_threshold": false,
+      "note": "P(yes) = 0.94"
+    },
+    {
+      "id": "ts_negative",
+      "label": "covers negative and boundary cases",
+      "result": "pass",
+      "value": 0.99,
+      "near_threshold": false,
+      "note": "P(yes) = 0.99"
+    },
+    {
+      "id": "ts_traceability",
+      "label": "tests trace to scenarios or risks",
+      "result": "pass",
+      "value": 0.92,
+      "near_threshold": false,
+      "note": "P(yes) = 0.92"
+    },
+    {
+      "id": "ts_failures",
+      "label": "failures have remediation",
+      "result": "pass",
+      "value": 0.8,
+      "near_threshold": false,
+      "note": "P(yes) = 0.80"
+    },
+    {
+      "id": "ts_static",
+      "label": "reports static checks",
+      "result": "pass",
+      "value": 0.99,
+      "near_threshold": false,
+      "note": "P(yes) = 0.99"
+    },
+    {
+      "id": "ts_unproven_claims",
+      "label": "claims a result without evidence",
+      "result": "uncertain",
+      "value": 0.56,
+      "near_threshold": false,
+      "note": "P(yes) = 0.56"
+    }
+  ],
+  "notes": [],
+  "model": "typesafe/jev-1.14-20261014",
+  "generation_id": "gen-dec-1794079661-8bFxlTg6wLhOWrgTMOUk",
+  "cost": 0.000152208,
+  "raw": {
+    "ts_real_output": {
+      "type": "noul",
+      "noul": 0.94
+    },
+    "ts_negative": {
+      "type": "noul",
+      "noul": 0.99
+    },
+    "ts_traceability": {
+      "type": "noul",
+      "noul": 0.92
+    },
+    "ts_failures": {
+      "type": "noul",
+      "noul": 0.8
+    },
+    "ts_static": {
+      "type": "noul",
+      "noul": 0.99
+    },
+    "ts_unproven_claims": {
+      "type": "noul",
+      "noul": 0.56
+    }
+  }
+}

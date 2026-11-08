@@ -1,0 +1,99 @@
+{
+  "slug": "local-cloudflare-dev-env",
+  "rubric": "tests",
+  "overall": "review",
+  "items": [
+    {
+      "id": "tq_caller_result",
+      "label": "tests assert on results a caller sees",
+      "result": "pass",
+      "value": 2.9,
+      "near_threshold": false,
+      "note": "2.90 of 3: all"
+    },
+    {
+      "id": "tq_null_detect",
+      "label": "tests fail if the code returns nothing",
+      "result": "pass",
+      "value": 2.57,
+      "near_threshold": false,
+      "note": "2.57 of 3: all"
+    },
+    {
+      "id": "tq_mock_only",
+      "label": "tests check only calls to internal collaborators",
+      "result": "pass",
+      "value": 0.13,
+      "near_threshold": false,
+      "note": "P(yes) = 0.13"
+    },
+    {
+      "id": "tq_impl_coupled",
+      "label": "tests depend on private implementation details",
+      "result": "uncertain",
+      "value": 0.35,
+      "near_threshold": true,
+      "note": "P(yes) = 0.35 (near threshold)"
+    },
+    {
+      "id": "tq_names",
+      "label": "test names describe behavior",
+      "result": "pass",
+      "value": 0.93,
+      "near_threshold": false,
+      "note": "P(yes) = 0.93"
+    }
+  ],
+  "notes": [],
+  "model": "typesafe/jev-1.14-20261014",
+  "generation_id": "gen-dec-1794079662-MNMjdtvYW1NsDPK9DT2k",
+  "cost": 0.000349188,
+  "raw": {
+    "tq_caller_result": {
+      "type": "score",
+      "score": 2.9,
+      "legend": {
+        "0": "none",
+        "1": "few",
+        "2": "most",
+        "3": "all"
+      },
+      "probabilities": {
+        "0": 0,
+        "1": 0.01,
+        "2": 0.08,
+        "3": 0.91
+      },
+      "confidence": 0.9
+    },
+    "tq_null_detect": {
+      "type": "score",
+      "score": 2.57,
+      "legend": {
+        "0": "none",
+        "1": "few",
+        "2": "most",
+        "3": "all"
+      },
+      "probabilities": {
+        "0": 0.03,
+        "1": 0.02,
+        "2": 0.3,
+        "3": 0.65
+      },
+      "confidence": 0.57
+    },
+    "tq_mock_only": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "tq_impl_coupled": {
+      "type": "noul",
+      "noul": 0.35
+    },
+    "tq_names": {
+      "type": "noul",
+      "noul": 0.93
+    }
+  }
+}

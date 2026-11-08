@@ -1,0 +1,98 @@
+{
+  "slug": "local-cloudflare-dev-env",
+  "rubric": "2-design",
+  "overall": "pass",
+  "items": [
+    {
+      "id": "ds_options",
+      "label": "compares at least two options",
+      "result": "pass",
+      "value": 0.99,
+      "near_threshold": false,
+      "note": "P(yes) = 0.99"
+    },
+    {
+      "id": "ds_tradeoffs",
+      "label": "states trade-offs",
+      "result": "pass",
+      "value": 0.99,
+      "near_threshold": false,
+      "note": "P(yes) = 0.99"
+    },
+    {
+      "id": "ds_justified",
+      "label": "recommendation is justified",
+      "result": "pass",
+      "value": 0.93,
+      "near_threshold": false,
+      "note": "P(yes) = 0.93"
+    },
+    {
+      "id": "ds_errors",
+      "label": "covers error handling",
+      "result": "pass",
+      "value": 0.98,
+      "near_threshold": false,
+      "note": "P(yes) = 0.98"
+    },
+    {
+      "id": "ds_sec_obs",
+      "label": "covers security and observability",
+      "result": "pass",
+      "value": 0.98,
+      "near_threshold": false,
+      "note": "P(yes) = 0.98"
+    },
+    {
+      "id": "ds_depth",
+      "label": "detail is enough to build from",
+      "result": "pass",
+      "value": 2.76,
+      "near_threshold": false,
+      "note": "2.76 of 3: all"
+    }
+  ],
+  "notes": [],
+  "model": "typesafe/jev-1.14-20261014",
+  "generation_id": "gen-dec-1794078817-lIk7l3ZizspHRTVf5lOi",
+  "cost": 0.000214704,
+  "raw": {
+    "ds_options": {
+      "type": "noul",
+      "noul": 0.99
+    },
+    "ds_tradeoffs": {
+      "type": "noul",
+      "noul": 0.99
+    },
+    "ds_justified": {
+      "type": "noul",
+      "noul": 0.93
+    },
+    "ds_errors": {
+      "type": "noul",
+      "noul": 0.98
+    },
+    "ds_sec_obs": {
+      "type": "noul",
+      "noul": 0.98
+    },
+    "ds_depth": {
+      "type": "score",
+      "score": 2.76,
+      "legend": {
+        "0": "little",
+        "1": "some",
+        "2": "most",
+        "3": "all"
+      },
+      "probabilities": {
+        "0": 0,
+        "1": 0,
+        "2": 0.24,
+        "3": 0.76
+      },
+      "confidence": 0.76
+    }
+  }
+}
