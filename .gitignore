@@ -31,3 +31,6 @@ blob-report/
 .DS_Store
 *.swp
 *.log
+
+# Local AI-SDLC run state and archives (not published)
+.sdlc/
